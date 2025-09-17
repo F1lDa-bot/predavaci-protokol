@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,20 +15,26 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom styles for printing */
+        /* Custom styles to hide UI elements during printing */
         @media print {
             body {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
             .no-print {
-                display: none;
+                display: none !important;
             }
             #protocol-form {
                 box-shadow: none;
                 border: none;
                 margin: 0;
                 padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+            @page {
+                margin: 1cm;
+                size: A4;
             }
         }
         /* Styling for the dotted line inputs */
@@ -42,7 +49,7 @@
         .form-input:focus {
             border-bottom: 1px solid #000;
         }
-        /* Custom checkbox */
+        /* Custom checkbox styles */
         .custom-checkbox {
             appearance: none;
             -webkit-appearance: none;
@@ -58,7 +65,8 @@
             background-color: #000;
         }
         .custom-checkbox:checked::after {
-            content: '✓';
+            content: 'X';
+            font-weight: bold;
             font-size: 1rem;
             color: white;
             position: absolute;
@@ -66,20 +74,17 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
-        .custom-checkbox.checked-x:checked::after {
-            content: 'X';
-            font-weight: bold;
-        }
     </style>
 </head>
 <body class="bg-gray-100 p-4 sm:p-8">
 
     <div class="max-w-4xl mx-auto">
-        <!-- The form that will be converted to PDF -->
+        <!-- The form that will be converted to PDF/printed -->
         <div id="protocol-form" class="bg-white p-6 sm:p-10 md:p-16 border border-gray-200 shadow-lg">
             <header class="text-center mb-12">
-                <!-- Logo Image -->
-                <img src="https://github.com/F1lDa-bot/predavaci-protokol/blob/main/Smarty%20logo.png?raw=true" class="mx-auto h-24 object-contain" alt="Brands Logo">
+                <!-- Logo Image from GitHub -->
+                <img src="URL_PRO_LOGO_ZDE" crossorigin="anonymous" class="mx-auto h-24 object-contain" alt="Brands Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <div class="hidden text-red-500">Logo se nepodařilo načíst. Zkontrolujte prosím URL.</div>
             </header>
 
             <main>
@@ -91,13 +96,17 @@
                         <label for="customer" class="font-bold whitespace-nowrap mr-2">Zákazník:</label>
                         <input type="text" id="customer" class="form-input">
                     </div>
+                     <div class="flex items-center">
+                        <label for="ico" class="font-bold whitespace-nowrap mr-2">IČO:</label>
+                        <input type="text" id="ico" class="form-input">
+                    </div>
                     <div class="flex items-center">
                         <label for="phone" class="font-bold whitespace-nowrap mr-2">Telefon:</label>
                         <input type="text" id="phone" class="form-input">
                     </div>
                     <div class="flex items-center">
-                        <label for="ico" class="font-bold whitespace-nowrap mr-2">IČO:</label>
-                        <input type="text" id="ico" class="form-input">
+                        <label for="email" class="font-bold whitespace-nowrap mr-2">Email:</label>
+                        <input type="email" id="email" class="form-input">
                     </div>
                 </div>
 
@@ -105,7 +114,7 @@
                 <div class="mb-6">
                     <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4">
                         <p class="font-bold">Zařízení:</p>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox checked-x"> iPhone</label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> iPhone</label>
                         <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> iPad/Watch</label>
                         <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Mac/PC</label>
                         <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Konzole</label>
@@ -126,9 +135,9 @@
                      <div class="flex flex-wrap items-center gap-x-8 gap-y-4">
                         <p class="font-bold w-full md:w-auto">Požadovaná služba:</p>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 flex-1">
-                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox checked-x"> Diagnostika/čištění</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Diagnostika/čištění</label>
                             <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Reinstalace/záloha/přehrání dat</label>
-                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox checked-x"> Ekologická likvidace</label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Ekologická likvidace</label>
                             <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Cenový návrh pro pojišťovnu</label>
                         </div>
                     </div>
@@ -153,12 +162,18 @@
                 <!-- Signature Lines -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 mt-16 pt-8">
                      <div class="text-center">
-                         <div class="border-b-2 border-black w-full"></div>
-                         <p class="text-sm mt-2">Zákazník (hůlkovým písmem + podpis)</p>
+                         <canvas id="signature-pad-customer" class="border border-gray-400 w-full h-32 rounded-md touch-none"></canvas>
+                         <div class="flex justify-between items-center mt-2">
+                             <p class="text-sm text-left">Zákazník (podpis)</p>
+                             <button type="button" id="clear-signature-customer" class="text-sm text-blue-600 hover:underline no-print">Smazat</button>
+                         </div>
                      </div>
                      <div class="text-center">
-                         <div class="border-b-2 border-black w-full"></div>
-                         <p class="text-sm mt-2">za Smarty Brands. (razítko + podpis)</p>
+                         <canvas id="signature-pad-smarty" class="border border-gray-400 w-full h-32 rounded-md touch-none"></canvas>
+                         <div class="flex justify-between items-center mt-2">
+                            <p class="text-sm text-left">za Smarty Brands. (podpis)</p>
+                            <button type="button" id="clear-signature-smarty" class="text-sm text-blue-600 hover:underline no-print">Smazat</button>
+                         </div>
                      </div>
                 </div>
 
@@ -166,13 +181,16 @@
 
             <!-- Footer Icons -->
             <footer class="mt-20 pt-8 flex justify-center items-center">
-                <img src="https://github.com/F1lDa-bot/predavaci-protokol/blob/main/Gaming.png?raw=true" class="h-16 mx-auto" alt="Gaming Consoles">
+                <img src="URL_PRO_IKONY_ZDE" crossorigin="anonymous" class="h-16 mx-auto" alt="Gaming Consoles" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                <div class="hidden text-red-500">Ikony se nepodařilo načíst. Zkontrolujte prosím URL.</div>
             </footer>
-
         </div>
 
-        <!-- Action Button -->
-        <div class="text-center mt-8 no-print">
+        <!-- Action Buttons -->
+        <div class="text-center mt-8 space-x-4 no-print">
+            <button id="print-protocol" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">
+                Vytisknout
+            </button>
             <button id="generate-pdf" class="bg-fuchsia-500 hover:bg-fuchsia-600 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">
                 Vygenerovat PDF
             </button>
@@ -180,74 +198,91 @@
     </div>
 
     <script>
-        // Set current date
         document.addEventListener('DOMContentLoaded', function() {
+            // --- Set current date ---
             const dateInput = document.getElementById('date');
             const today = new Date();
             const day = String(today.getDate()).padStart(2, '0');
             const month = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
             const year = today.getFullYear();
             dateInput.value = `${day}.${month}.${year}`;
-        });
-
-        // PDF Generation logic
-        document.getElementById('generate-pdf').addEventListener('click', () => {
-            const protocolForm = document.getElementById('protocol-form');
-            const button = document.getElementById('generate-pdf');
             
-            // Hide button to not include it in the PDF
-            button.style.display = 'none';
+            // --- Signature Pad Logic ---
+            const canvasCustomer = document.getElementById('signature-pad-customer');
+            const signaturePadCustomer = new SignaturePad(canvasCustomer, { backgroundColor: 'rgb(255, 255, 255)' });
+            document.getElementById('clear-signature-customer').addEventListener('click', () => signaturePadCustomer.clear());
 
-            // Use html2canvas to capture the form element
-            html2canvas(protocolForm, {
-                scale: 2, // Higher scale for better quality
-                useCORS: true,
-                logging: false,
-                windowWidth: protocolForm.scrollWidth,
-                windowHeight: protocolForm.scrollHeight
-            }).then(canvas => {
-                const imgData = canvas.toDataURL('image/png');
-                const { jsPDF } = window.jspdf;
+            const canvasSmarty = document.getElementById('signature-pad-smarty');
+            const signaturePadSmarty = new SignaturePad(canvasSmarty, { backgroundColor: 'rgb(255, 255, 255)' });
+            document.getElementById('clear-signature-smarty').addEventListener('click', () => signaturePadSmarty.clear());
 
-                // A4 dimensions in mm
-                const pdfWidth = 210;
-                const pdfHeight = 297;
 
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvas.height;
-                const canvasAspectRatio = canvasWidth / canvasHeight;
+            function resizeCanvas(canvas, pad) {
+                const ratio =  Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                pad.clear(); // otherwise isEmpty() might return incorrect value
+            }
+            
+            function resizeAllCanvases() {
+                resizeCanvas(canvasCustomer, signaturePadCustomer);
+                resizeCanvas(canvasSmarty, signaturePadSmarty);
+            }
 
-                let imgWidth = pdfWidth - 20; // with margin
-                let imgHeight = imgWidth / canvasAspectRatio;
+            window.addEventListener("resize", resizeAllCanvases);
+            resizeAllCanvases();
+
+            // --- Print Logic ---
+            document.getElementById('print-protocol').addEventListener('click', () => {
+                window.print();
+            });
+
+            // --- PDF Generation logic ---
+            document.getElementById('generate-pdf').addEventListener('click', () => {
+                const protocolForm = document.getElementById('protocol-form');
+                const buttons = document.querySelector('.no-print');
                 
-                let pdf;
-                // Check if content is taller than A4, then create a longer PDF
-                if (imgHeight > (pdfHeight - 20)) {
-                    pdf = new jsPDF({
-                        orientation: 'p',
-                        unit: 'mm',
-                        format: [pdfWidth, imgHeight + 20] // custom height
-                    });
-                } else {
-                     pdf = new jsPDF({
-                        orientation: 'p',
-                        unit: 'mm',
-                        format: 'a4'
-                    });
-                }
-                
-                const x = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
-                const y = 10; // top margin
+                buttons.style.display = 'none';
 
-                pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
-                pdf.save('predavaci-protokol.pdf');
+                html2canvas(protocolForm, {
+                    scale: 2,
+                    useCORS: true, // Needed for external images
+                    logging: true,
+                    windowWidth: protocolForm.scrollWidth,
+                    windowHeight: protocolForm.scrollHeight
+                }).then(canvas => {
+                    // When done, show buttons again
+                    buttons.style.display = 'block';
 
-                // Show button again
-                button.style.display = 'block';
-            }).catch(err => {
-                console.error("Error generating PDF:", err);
-                // Show button again in case of error
-                button.style.display = 'block';
+                    const imgData = canvas.toDataURL('image/png');
+                    const { jsPDF } = window.jspdf;
+                    
+                    const pdfWidth = 210; // A4 width in mm
+                    const pdfHeight = 297; // A4 height in mm
+                    
+                    const canvasAspectRatio = canvas.width / canvas.height;
+                    
+                    let imgWidth = pdfWidth - 20; // with margin
+                    let imgHeight = imgWidth / canvasAspectRatio;
+
+                    let pdf;
+                    if (imgHeight > (pdfHeight - 20)) {
+                         pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfWidth, imgHeight + 20] });
+                    } else {
+                         pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                    }
+                    
+                    const x = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
+                    const y = 10; // top margin
+
+                    pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+                    pdf.save('predavaci-protokol.pdf');
+
+                }).catch(err => {
+                    console.error("Error generating PDF:", err);
+                    buttons.style.display = 'block'; // Show buttons again in case of error
+                });
             });
         });
     </script>
