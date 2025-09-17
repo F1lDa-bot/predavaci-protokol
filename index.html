@@ -148,13 +148,22 @@
                 padding: 0;
                 border: none;
                 box-shadow: none;
-                min-height: 25cm; 
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
             }
-            main {
-              flex-grow: 1;
+            
+            /* --- Compact Layout for Printing --- */
+            #protocol-form header { margin-bottom: 2rem !important; }
+            #protocol-form h1 { margin-bottom: 1.5rem !important; }
+            #protocol-form .mb-6 { margin-bottom: 1rem !important; }
+            #protocol-form .mb-10 { margin-bottom: 1.5rem !important; }
+            #protocol-form .mb-16 { margin-bottom: 2rem !important; }
+            .signature-section {
+                margin-top: 2rem !important;
+                padding-top: 1rem !important;
+            }
+            #protocol-footer {
+                margin-top: 2rem !important;
+                padding-top: 1rem !important;
+                page-break-before: avoid !important;
             }
         }
     </style>
@@ -242,7 +251,7 @@
                 </div>
 
                 <!-- Signature Lines -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 mt-16 pt-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 mt-16 pt-8 signature-section">
                      <div class="text-center">
                          <canvas id="signature-pad-customer" class="border border-gray-400 w-full h-40 rounded-md touch-none"></canvas>
                          <div class="flex justify-between items-center mt-2">
