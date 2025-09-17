@@ -156,10 +156,6 @@
             main {
               flex-grow: 1;
             }
-            /* Hide footer on print */
-            #protocol-footer {
-                display: none !important;
-            }
         }
     </style>
 </head>
@@ -330,12 +326,10 @@
             document.getElementById('generate-pdf').addEventListener('click', () => {
                 const protocolForm = document.getElementById('protocol-form');
                 const elementsToHide = document.querySelectorAll('.no-print');
-                const footer = document.getElementById('protocol-footer');
                 
-                // Přidá třídu pro vynucení světlého režimu a skryje tlačítka a patičku
+                // Přidá třídu pro vynucení světlého režimu a skryje tlačítka
                 protocolForm.classList.add('pdf-export-mode');
                 elementsToHide.forEach(el => el.style.display = 'none');
-                if (footer) footer.style.display = 'none';
 
                 html2canvas(protocolForm, {
                     scale: 2,
@@ -352,18 +346,18 @@
                     
                     const canvasAspectRatio = canvas.width / canvas.height;
                     
-                    let imgWidth = pdfWidth - 20; // with margin
+                    let imgWidth = pdfWidth - 10; // smaller margin
                     let imgHeight = imgWidth / canvasAspectRatio;
 
                     let pdf;
-                    if (imgHeight > (pdfHeight - 20)) {
-                         pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfWidth, imgHeight + 20] });
+                    if (imgHeight > (pdfHeight - 10)) {
+                         pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: [pdfWidth, imgHeight + 10] });
                     } else {
                          pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
                     }
                     
                     const x = (pdf.internal.pageSize.getWidth() - imgWidth) / 2;
-                    const y = 10; // top margin
+                    const y = 5; // smaller top margin to move content up
 
                     pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
                     pdf.save('predavaci-protokol.pdf');
@@ -374,7 +368,6 @@
                     // Po dokončení (ať už úspěšně nebo s chybou) se vše vrátí do původního stavu
                     protocolForm.classList.remove('pdf-export-mode');
                     elementsToHide.forEach(el => el.style.display = '');
-                    if (footer) footer.style.display = 'flex';
                 });
             });
         });
