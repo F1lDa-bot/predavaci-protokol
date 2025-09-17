@@ -54,20 +54,83 @@
             transform: translate(-50%, -50%);
         }
 
+        /* --- DARK MODE STYLES --- */
+        @media (prefers-color-scheme: dark) {
+            body.page-container {
+                background-color: #111827; /* Tailwind gray-900 */
+            }
+            #protocol-form {
+                background-color: #1f2937; /* Tailwind gray-800 */
+                border-color: #374151;   /* Tailwind gray-700 */
+            }
+            h1, label, p {
+                color: #f9fafb; /* Tailwind gray-50 */
+            }
+            .form-input {
+                color: #f9fafb;
+                border-bottom: 1px dotted #6b7280; /* Tailwind gray-500 */
+            }
+            .form-input:focus {
+                border-bottom: 1px solid #f9fafb;
+            }
+            .custom-checkbox {
+                border-color: #d1d5db; /* Tailwind gray-300 */
+            }
+            .custom-checkbox:checked {
+                background-color: #d1d5db;
+            }
+            .custom-checkbox:checked::after {
+                color: #1f2937;
+            }
+            #signature-pad-customer, #signature-pad-smarty {
+                background-color: #fff !important; /* Podpisová pole zůstanou bílá */
+            }
+            /* Invertuje obrázky pro lepší viditelnost v tmavém režimu */
+            footer img, header img {
+                filter: invert(1) hue-rotate(180deg);
+            }
+        }
+
+        /* --- Třída pro vynucení světlého režimu při exportu PDF --- */
+        #protocol-form.pdf-export-mode {
+            background-color: #ffffff !important;
+            border-color: #e5e7eb !important;
+        }
+        #protocol-form.pdf-export-mode h1,
+        #protocol-form.pdf-export-mode label,
+        #protocol-form.pdf-export-mode p {
+            color: #000000 !important;
+        }
+        #protocol-form.pdf-export-mode .form-input {
+            color: #000000 !important;
+            border-bottom: 1px dotted #333 !important;
+        }
+        #protocol-form.pdf-export-mode .custom-checkbox {
+            border-color: #000 !important;
+        }
+        #protocol-form.pdf-export-mode .custom-checkbox:checked {
+            background-color: #000 !important;
+        }
+        #protocol-form.pdf-export-mode .custom-checkbox:checked::after {
+            color: #fff !important;
+        }
+        #protocol-form.pdf-export-mode footer img,
+        #protocol-form.pdf-export-mode header img {
+            filter: none !important;
+        }
+
         /* --- PRINT STYLES (pro tisk z prohlížeče, např. Cmd+P) --- */
         @media print {
             @page {
                 margin: 1.5cm;
                 size: A4;
             }
-
             body {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 background-color: #fff !important;
                 margin: 0;
             }
-
             .no-print, .page-container {
                 background-color: #fff !important;
                 padding: 0;
@@ -75,12 +138,10 @@
             .no-print {
                 display: none !important;
             }
-            
             .protocol-container {
                 max-width: 100%;
                 margin: 0;
             }
-            
             #protocol-form {
                 width: 100%;
                 margin: 0;
@@ -92,7 +153,6 @@
                 flex-direction: column;
                 justify-content: space-between;
             }
-            
             main {
               flex-grow: 1;
             }
@@ -140,7 +200,7 @@
                         <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> iPad/Watch</label>
                         <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Mac/PC</label>
                         <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> Konzole</label>
-                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> ACC/Jiné</label>
+                        <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" class="custom-checkbox"> ACC/jiné</label>
                     </div>
                      <div class="flex items-center mb-4">
                         <label for="sn" class="font-bold whitespace-nowrap mr-2">SN:</label>
@@ -255,9 +315,10 @@
             // --- PDF Generation logic ---
             document.getElementById('generate-pdf').addEventListener('click', () => {
                 const protocolForm = document.getElementById('protocol-form');
-                // Nyní se skrývají všechny elementy s třídou no-print
                 const elementsToHide = document.querySelectorAll('.no-print');
                 
+                // Přidá třídu pro vynucení světlého režimu a skryje tlačítka
+                protocolForm.classList.add('pdf-export-mode');
                 elementsToHide.forEach(el => el.style.display = 'none');
 
                 html2canvas(protocolForm, {
@@ -267,9 +328,6 @@
                     windowWidth: protocolForm.scrollWidth,
                     windowHeight: protocolForm.scrollHeight
                 }).then(canvas => {
-                    // Po dokončení se elementy opět zobrazí
-                    elementsToHide.forEach(el => el.style.display = '');
-
                     const imgData = canvas.toDataURL('image/png');
                     const { jsPDF } = window.jspdf;
                     
@@ -296,7 +354,10 @@
 
                 }).catch(err => {
                     console.error("Error generating PDF:", err);
-                    elementsToHide.forEach(el => el.style.display = ''); // Zobrazí elementy i v případě chyby
+                }).finally(() => {
+                    // Po dokončení (ať už úspěšně nebo s chybou) se vše vrátí do původního stavu
+                    protocolForm.classList.remove('pdf-export-mode');
+                    elementsToHide.forEach(el => el.style.display = '');
                 });
             });
         });
