@@ -15,28 +15,7 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom styles to hide UI elements during printing */
-        @media print {
-            body {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-            .no-print {
-                display: none !important;
-            }
-            #protocol-form {
-                box-shadow: none;
-                border: none;
-                margin: 0;
-                padding: 0;
-                width: 100%;
-                max-width: 100%;
-            }
-            @page {
-                margin: 1cm;
-                size: A4;
-            }
-        }
+        
         /* Styling for the dotted line inputs */
         .form-input {
             border: none;
@@ -74,11 +53,51 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
+
+        /* --- PRINT STYLES --- */
+        @media print {
+            @page {
+                margin: 1.5cm; /* Okraje pro tisk */
+                size: A4;
+            }
+
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                background-color: #fff;
+                margin: 0;
+            }
+
+            /* Skryje tlačítka a nepotřebné okraje */
+            .no-print {
+                display: none !important;
+            }
+            .page-container {
+                padding: 0;
+            }
+            
+            /* Roztáhne formulář na celou stránku */
+            .protocol-container, #protocol-form {
+                max-width: none;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            main {
+                flex-grow: 1;
+            }
+        }
     </style>
 </head>
-<body class="bg-gray-100 p-4 sm:p-8">
+<body class="bg-gray-100 p-4 sm:p-8 page-container">
 
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto protocol-container">
         <!-- The form that will be converted to PDF/printed -->
         <div id="protocol-form" class="bg-white p-6 sm:p-10 md:p-16 border border-gray-200 shadow-lg">
             <header class="text-center mb-12">
