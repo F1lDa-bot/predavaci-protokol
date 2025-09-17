@@ -64,33 +64,40 @@
             body {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                background-color: #fff;
+                background-color: #fff !important;
                 margin: 0;
             }
 
-            /* Skryje tlačítka a nepotřebné okraje */
+            /* Skryje tlačítka a vnější pozadí */
+            .no-print, .page-container {
+                background-color: #fff !important;
+                padding: 0;
+            }
             .no-print {
                 display: none !important;
             }
-            .page-container {
-                padding: 0;
-            }
             
             /* Roztáhne formulář na celou stránku */
-            .protocol-container, #protocol-form {
-                max-width: none;
+            .protocol-container {
+                max-width: 100%;
+                margin: 0;
+            }
+            
+            #protocol-form {
                 width: 100%;
-                height: 100%;
                 margin: 0;
                 padding: 0;
                 border: none;
                 box-shadow: none;
+                /* Přidáme min-height, aby se obsah pokusil vyplnit stránku, ale nezlomil ji */
+                min-height: 25cm; 
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
             }
+            
             main {
-                flex-grow: 1;
+              flex-grow: 1;
             }
         }
     </style>
@@ -259,9 +266,9 @@
             // --- PDF Generation logic ---
             document.getElementById('generate-pdf').addEventListener('click', () => {
                 const protocolForm = document.getElementById('protocol-form');
-                const buttons = document.querySelector('.no-print');
+                const buttons = document.querySelectorAll('.no-print');
                 
-                buttons.style.display = 'none';
+                buttons.forEach(b => b.style.display = 'none');
 
                 html2canvas(protocolForm, {
                     scale: 2,
@@ -271,7 +278,7 @@
                     windowHeight: protocolForm.scrollHeight
                 }).then(canvas => {
                     // When done, show buttons again
-                    buttons.style.display = 'block';
+                    buttons.forEach(b => b.style.display = 'block');
 
                     const imgData = canvas.toDataURL('image/png');
                     const { jsPDF } = window.jspdf;
@@ -299,7 +306,7 @@
 
                 }).catch(err => {
                     console.error("Error generating PDF:", err);
-                    buttons.style.display = 'block'; // Show buttons again in case of error
+                    buttons.forEach(b => b.style.display = 'block'); // Show buttons again in case of error
                 });
             });
         });
